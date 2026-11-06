@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Document</title>
+     <link rel="stylesheet"  href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <link  rel="stylesheet"   href="node_modules/bootstrap-icons/font/bootstrap-icons.css">
+
+    <script>
+
+        function LoadCategories(){
+            fetch("http://fakestoreapi.com/products/categories")
+            .then(function(response){
+                    return response.json()
+
+            })
+            .then(function(categories){
+                categories.unshift("ALL")
+                categories.map(function(category){
+
+                    var option=document.createElement("option")
+                    option.text=category;
+                    option.value=category;
+                    document.getElementById("lstCategories").appendChild(option);
+
+
+                })
+            })
+        }
+
+        function bodyload(){
+            LoadCategories();
+            loadProducts();
+            getCartCount()
+        }
+
+        function loadProducts(url){
+            document.querySelector("main").innerHTML = ""; 
+            fetch(url)
+            .then(function(response){
+                return response.json();
+            })
+            .then(function(products){
+                products.map(function(product){
+
+                
+                div=document.createElement("div")
+                div.className="card p-2 m-2";
+                div.style.width="200px";
+                div.innerHTML=`
+                <img src=${product.image} height=140 class="card-img-top">
+                <div class="card-header">
+                    <div>${product.title}</div>
+                </div>
+                <div class="card-body">
+                    <dl>
+                        <dt>Price</dt>
+                        <dd>${product.price}</dd>
+                        <dt>rating</dt>
+                        <dd>${product.rating.rate}<span class="bi bi-star-fill success"></span>
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <button onclick="addclick(${product.id})" class="btn btn-danger w-100">
+                        <span class="bi bi-cart4"></span>Add To Cart
+                    </button>
+
+                </div>`;
+                document.querySelector("main").appendChild(div)
+                
+            })
+        })
+        }
+        function addclick(id){
+            alert("testing"+id)
+            fetch(`https://fakestoreapi.com/products/${id}`)
+            .then(function(response){
+                return response.json();
+            })
+            .then(function(product){
+                cartItems.push(product)
+                alert(`${product.title}\nAdded to Cart`)
+                 getCartCount();
+            })
+            
+        }
+        function categoryChanged(){
+            var categoryName=document.getElementById("lstCategories").value;
+        
+            if(categoryName=="ALL")
+            {
+            loadProducts(`https://fakestoreapi.com/products`)
+            
+        }
+        else{
+        
+            loadProducts(`http://fakestoreapi.com/products/category/${categoryName}`)
+            
+        }
+            
+        }
+        var cartItems=[];
+        function  getCartCount(){
+            
+            document.getElementById("lblCount").innerHTML=cartItems.length
+
+
+
+        }
+
+
+
+        
+    </script>
+
+</head>
+<body class="container-fluid" onload="bodyload()">
+    <header class="p-2 d-flex justify-content-between bg-dark text-white">
+        <div class="h3">Shopper</div>
+        <div>
+            <span class="me-3"><a href="">Home</a></span>
+            <span class="me-3"><a href="">Electronics</a></span>
+            <span class="me-3"><a href="">Jewelery</a></span>
+            <span class="me-3"><a href="">Men's Fashion</a></span>
+            <span class="me-3"><a href="">Women's Fashion</a></span>
+        </div>
+        <div>
+            <span class="bi bi-search me-3"></span>
+            <span class="bi bi-heart me-3"></span>
+            <button class="btn btn-light">
+                     <span class="bi bi-cart3">Your Cart</span>
+                        <span class="badge bg-danger position-absolute top-0 rounded-circle" id="lblCount">0</span>
+                    </button>
+
+
+
+        </div>
+    </header>
+        <section class="row mt-3">
+
+
+        <nav class="col-2">
+            <div>
+                <label class="form-label fw-bold">Select Category</label>
+                <div>
+                    <select name="" onchange="categoryChanged()" id="lstCategories" class="form-select" refreshPage()>
+
+                    </select>
+                </div>
+            </div>
+
+        </nav>
+        <main class="col-10 d-flex flex-wrap overflow:auto">
+
+        </main>
+    </section>
+
+
+    
+<script src="node_modules/jquery/dist/jquery.js"> </script>
+<script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"> </script>
+
+</body>
+</html>
